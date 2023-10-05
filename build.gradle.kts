@@ -1,6 +1,7 @@
 plugins {
     java
     id("io.quarkus")
+    id("io.freefair.lombok") version "8.3"
 }
 
 repositories {
@@ -19,6 +20,8 @@ dependencies {
     implementation("io.quarkus:quarkus-micrometer-registry-prometheus")
     implementation("io.quarkus:quarkus-arc")
     testImplementation("io.quarkus:quarkus-junit5")
+    testImplementation("org.apache.kafka:kafka-streams-test-utils")
+    testImplementation("uk.co.jemos.podam:podam:8.0.0.RELEASE")
 }
 
 group = "org.acme"
