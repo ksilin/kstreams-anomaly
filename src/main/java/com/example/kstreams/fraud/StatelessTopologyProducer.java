@@ -39,13 +39,13 @@ public class StatelessTopologyProducer {
     public Topology createTopology(String sourceTopic, String validTopic, String invalidTopic) {
         StreamsBuilder builder = new StreamsBuilder();
 
-        Predicate<? super String, ? super String> invalidPredicate = (k, v) -> v.contains("boo");
+        Predicate<String, String> invalidPredicate = (k, v) -> v.contains("boo");
 
         builder.stream(sourceTopic, Consumed.with(Serdes.String(), Serdes.String()))
                 .peek((k, v) -> log.infov("validating message {0}:{1}, k, v"))
                 .split(Named.as("validationSplit"))
-                .branch(invalidPredicate, Branched.withConsumer(ks -> ks.to(invalidTopic)))
-                .defaultBranch(Branched.withConsumer(ks -> ks.to(validTopic)));
+                .branch(invalidPredicate, Branched.withConsumer(ks -> ks.to(invalidTopic), "invalidTxBranch"))
+                .defaultBranch(Branched.withConsumer(ks -> ks.to(validTopic), "validTxBranch"));
 
         return builder.build();
     }
