@@ -1,0 +1,10 @@
+{
+ "type": "record",
+ "name": "Transaction",
+ "fields": [
+   {"name": "accountName", "type": "string"},
+   {"name": "transactionAmount", "type": "long"},
+   {"name": "transactionId", "type": "string"},
+   {"name": "timestamp", "type": "long"}
+ ]
+}
