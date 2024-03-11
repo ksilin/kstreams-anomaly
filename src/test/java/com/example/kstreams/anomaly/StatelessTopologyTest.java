@@ -1,4 +1,4 @@
-package com.example.kstreams.fraud;
+package com.example.kstreams.anomaly;
 
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serdes;

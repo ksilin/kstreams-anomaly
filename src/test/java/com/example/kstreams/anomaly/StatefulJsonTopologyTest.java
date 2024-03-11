@@ -1,7 +1,7 @@
-package com.example.kstreams.fraud;
+package com.example.kstreams.anomaly;
 
-import com.example.kstreams.fraud.model.FinTransaction;
-import com.example.kstreams.fraud.model.TxAndWindowedAmount;
+import com.example.kstreams.anomaly.model.FinTransaction;
+import com.example.kstreams.anomaly.model.TxAndWindowedAmount;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
@@ -9,6 +9,7 @@ import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.jboss.logging.Logger;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
@@ -26,7 +27,7 @@ public class StatefulJsonTopologyTest {
     static final Properties props = new Properties();
 
     WindowedAmountLimitJsonTopologyProducer topologyProducer = new WindowedAmountLimitJsonTopologyProducer(sourceTopic, validTopic, invalidTopic);
-
+    @BeforeAll
     static void beforeAll(){
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, StatefulJsonTopologyTest.class.getSimpleName());
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "test:1234");
@@ -71,6 +72,5 @@ public class StatefulJsonTopologyTest {
         assertThat(validMessages).hasSize(1).contains(validTxAndAmount);
         assertThat(invalidMessages).hasSize(1).contains(invalidTxAndAmount);
     }
-
 
 }

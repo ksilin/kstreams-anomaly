@@ -1,6 +1,5 @@
-package com.example.kstreams.fraud;
+package com.example.kstreams.anomaly;
 
-import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
@@ -36,7 +35,7 @@ public class WindowedAmountLimitTopologyProducer {
         this.invalidTopic = invalidTopic;
     }
 
-    @Produces
+    //@Produces
     public Topology produceTopology() {
         return createTopology(this.sourceTopic, this.validTopic, this.invalidTopic);
     }

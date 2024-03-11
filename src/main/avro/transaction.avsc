@@ -1,10 +1,82 @@
-{
- "type": "record",
- "name": "Transaction",
- "fields": [
-   {"name": "accountName", "type": "string"},
-   {"name": "transactionAmount", "type": "long"},
-   {"name": "transactionId", "type": "string"},
-   {"name": "timestamp", "type": "long"}
- ]
-}
+[
+  {
+    "type": "record",
+    "name": "Transaction",
+    "namespace": "com.example.avro",
+    "fields": [
+      {
+        "name": "accountName",
+        "type": "string"
+      },
+      {
+        "name": "transactionAmount",
+        "type": "int"
+      },
+      {
+        "name": "transactionId",
+        "type": "string"
+      },
+      {
+        "name": "lat",
+        "type": "double"
+      },
+      {
+        "name": "long",
+        "type": "double"
+      },
+      {
+        "name": "timestamp",
+        "type": "long"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "TxAnomaly",
+    "namespace": "com.example.avro",
+    "fields": [
+      {
+        "name": "accountName",
+        "type": "string"
+      },
+      {
+        "name": "anomalyType",
+        "type": "string"
+      },
+      {
+        "name": "appliedRule",
+        "type": "string"
+      },
+      {
+        "name": "message",
+        "type": "string"
+      },
+      {
+        "name": "transaction",
+        "type": "com.example.avro.Transaction"
+      },
+      {
+        "name": "timestamp",
+        "type": "long"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "TxCheckResult",
+    "namespace": "com.example.avro",
+    "fields": [
+      {
+        "name": "transaction",
+        "type": "com.example.avro.Transaction"
+      },
+      {
+        "name": "anomalies",
+        "type": {
+          "type": "array",
+          "items": "com.example.avro.TxAnomaly"
+        }
+      }
+    ]
+  }
+]

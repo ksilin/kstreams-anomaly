@@ -1,9 +1,7 @@
-package com.example.kstreams.fraud;
+package com.example.kstreams.anomaly;
 
 import io.quarkus.runtime.Startup;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Produces;
-import jakarta.inject.Inject;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
@@ -14,8 +12,8 @@ import org.apache.kafka.streams.kstream.Predicate;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
-@Startup
-@ApplicationScoped
+//@Startup
+//@ApplicationScoped
 public class StatelessTopologyProducer {
 
     Logger log = Logger.getLogger(StatelessTopologyProducer.class);
@@ -24,14 +22,14 @@ public class StatelessTopologyProducer {
     String validTopic;
     String invalidTopic;
 
-    @Inject
+    //@Inject
     public StatelessTopologyProducer(@ConfigProperty(name = "sourceTopic") String sourceTopic, @ConfigProperty(name = "validTopic") String validTopic, @ConfigProperty(name = "invalidTopic") String invalidTopic) {
         this.sourceTopic = sourceTopic;
         this.validTopic = validTopic;
         this.invalidTopic = invalidTopic;
     }
 
-    @Produces
+    //@Produces
     public Topology produceTopology() {
         return createTopology(this.sourceTopic, this.validTopic, this.invalidTopic);
     }

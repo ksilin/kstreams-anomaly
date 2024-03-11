@@ -1,7 +1,6 @@
-package com.example.kstreams.fraud.model;
+package com.example.kstreams.anomaly.model;
 
 import io.soabase.recordbuilder.core.RecordBuilder;
-import lombok.Data;
 
 //@Data
 @RecordBuilder

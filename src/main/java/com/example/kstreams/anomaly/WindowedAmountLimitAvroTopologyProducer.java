@@ -1,11 +1,8 @@
-package com.example.kstreams.fraud;
+package com.example.kstreams.anomaly;
 
-import jakarta.enterprise.inject.Produces;
-import jakarta.inject.Inject;
 import org.apache.avro.specific.SpecificRecord;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -35,14 +32,14 @@ public class WindowedAmountLimitAvroTopologyProducer {
     Serde<SpecificRecord> valueSerde;
 
 
-    @Inject
+    // @Inject
     public WindowedAmountLimitAvroTopologyProducer(@ConfigProperty(name = "sourceTopic") String sourceTopic, @ConfigProperty(name = "validTopic") String validTopic, @ConfigProperty(name = "invalidTopic") String invalidTopic) {
         this.sourceTopic = sourceTopic;
         this.validTopic = validTopic;
         this.invalidTopic = invalidTopic;
     }
 
-    @Produces
+    // @Produces
     public Topology produceTopology() {
         return createTopology(this.sourceTopic, this.validTopic, this.invalidTopic);
     }

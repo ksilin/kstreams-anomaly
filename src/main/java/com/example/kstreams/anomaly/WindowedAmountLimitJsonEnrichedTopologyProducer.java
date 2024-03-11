@@ -1,10 +1,8 @@
-package com.example.kstreams.fraud;
+package com.example.kstreams.anomaly;
 
-import com.example.kstreams.fraud.model.FinTransaction;
-import com.example.kstreams.fraud.model.TxAndWindowedAmount;
+import com.example.kstreams.anomaly.model.FinTransaction;
+import com.example.kstreams.anomaly.model.TxAndWindowedAmount;
 import io.quarkus.kafka.client.serialization.ObjectMapperSerde;
-import jakarta.enterprise.inject.Produces;
-import jakarta.inject.Inject;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
@@ -35,14 +33,14 @@ public class WindowedAmountLimitJsonEnrichedTopologyProducer {
     String invalidTopic;
 
 
-    @Inject
+    //@Inject
     public WindowedAmountLimitJsonEnrichedTopologyProducer(@ConfigProperty(name = "sourceTopic") String sourceTopic, @ConfigProperty(name = "validTopic") String validTopic, @ConfigProperty(name = "invalidTopic") String invalidTopic) {
         this.sourceTopic = sourceTopic;
         this.validTopic = validTopic;
         this.invalidTopic = invalidTopic;
     }
 
-    @Produces
+    //@Produces
     public Topology produceTopology() {
         return createTopology(this.sourceTopic, this.validTopic, this.invalidTopic);
     }

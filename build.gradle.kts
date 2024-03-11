@@ -29,6 +29,8 @@ dependencies {
     implementation("io.quarkus:quarkus-micrometer")
     implementation("io.quarkus:quarkus-micrometer-registry-prometheus")
     implementation("io.quarkus:quarkus-arc")
+    implementation("io.vavr:vavr:0.10.4")
+    implementation("info.debatty:java-string-similarity:2.0.0")
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation("org.apache.kafka:kafka-streams-test-utils")
