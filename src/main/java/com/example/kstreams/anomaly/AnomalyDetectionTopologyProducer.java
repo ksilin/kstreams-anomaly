@@ -52,9 +52,9 @@ public class AnomalyDetectionTopologyProducer {
 
     @Produces
     public Topology produceTopology() {
-        long storeRetentionMs = 10000;
+        long storeRetentionMs = 100000;
         SingleAmountAnomalyConfig singleAmountAnomalyConfig = new SingleAmountAnomalyConfig(100);
-        WindowedAmountAnomalyConfig windowedAmountAnomalyConfig = new WindowedAmountAnomalyConfig(200, 1000);
+        WindowedAmountAnomalyConfig windowedAmountAnomalyConfig = new WindowedAmountAnomalyConfig(300, 10000);
         ProcessorSupplier<String, Transaction, String, TxCheckResult> txCheckResultProcessorSupplier = () -> new TransactionAggregateProcessor(storeRetentionMs, singleAmountAnomalyConfig, windowedAmountAnomalyConfig);
         return createTopology(this.sourceTopic, this.validTopic, this.invalidTopic,  this.srUrl, txCheckResultProcessorSupplier);
     }
