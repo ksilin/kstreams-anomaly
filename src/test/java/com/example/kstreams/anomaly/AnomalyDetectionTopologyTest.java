@@ -72,15 +72,13 @@ public class AnomalyDetectionTopologyTest {
         var topo = AnomalyDetectionTopologyProducer.createTopology(sourceTopic, validTxTopic, anomalyTopic, mockSR, txCheckResultProcessorSupplier);
 
         TestInputTopic<String, Transaction> inputTopic;
-        TestOutputTopic<String, List<TxAnomaly>> anomalyOutputTopic;
+        TestOutputTopic<String, TxAnomaly> anomalyOutputTopic;
         TestOutputTopic<String, Transaction> validOutputTopic;
-
-        Serdes.ListSerde<TxAnomaly> anymalyListSerde = new Serdes.ListSerde<>(ArrayList.class, txAnomalySerde);
 
         try (var testDriver = new TopologyTestDriver(topo, props)) {
 
             inputTopic = testDriver.createInputTopic(sourceTopic, stringSerializer, txSerde.serializer());
-            anomalyOutputTopic = testDriver.createOutputTopic(anomalyTopic, stringDeserializer, anymalyListSerde.deserializer());
+            anomalyOutputTopic = testDriver.createOutputTopic(anomalyTopic, stringDeserializer, txAnomalySerde.deserializer());
             validOutputTopic = testDriver.createOutputTopic(validTxTopic, stringDeserializer, txSerde.deserializer());
 
             long now = Instant.now().toEpochMilli();
@@ -98,7 +96,7 @@ public class AnomalyDetectionTopologyTest {
             inputTopic.pipeInput(accountName, txOverSingleLimit);
 
             List<Transaction> validResultsSingleTx = validOutputTopic.readValuesToList();
-            List<List<TxAnomaly>> anomalyResultsSingleTx = anomalyOutputTopic.readValuesToList();
+            List<TxAnomaly> anomalyResultsSingleTx = anomalyOutputTopic.readValuesToList();
 
             assertThat(validResultsSingleTx).hasSize(1);
             assertThat(anomalyResultsSingleTx).hasSize(1);
@@ -136,7 +134,7 @@ public class AnomalyDetectionTopologyTest {
 
 
             List<Transaction> validResults = validOutputTopic.readValuesToList();
-            List<List<TxAnomaly>> anomalyResults = anomalyOutputTopic.readValuesToList();
+            List<TxAnomaly> anomalyResults = anomalyOutputTopic.readValuesToList();
             //results.forEach(s -> log.infof("result: %s", s));
 
             assertThat(validResults).hasSize(4);

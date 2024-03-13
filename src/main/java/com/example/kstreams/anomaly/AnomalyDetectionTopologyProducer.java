@@ -27,10 +27,6 @@ import java.util.Map;
 @ApplicationScoped
 public class AnomalyDetectionTopologyProducer {
 
-    static int maxAmount = 100;
-    static long windowDurationMs = 10000;
-    static long graceDurationMs = 1000;
-
     Logger log = Logger.getLogger(AnomalyDetectionTopologyProducer.class);
 
     String sourceTopic;
@@ -92,8 +88,8 @@ public class AnomalyDetectionTopologyProducer {
         KStream<String, TxCheckResult> anomaliesStream = branchMap.get(checkResultsSplit + anomaliesBranch);
         KStream<String, TxCheckResult> validTxCheckStream = branchMap.get(checkResultsSplit + validBranch);
 
-        KStream<String, List<TxAnomaly>> mappedValues = anomaliesStream.mapValues(TxCheckResult::getAnomalies);
-        mappedValues.to(invalidTopic, Produced.with(Serdes.String(), anomalyListSerde));
+        KStream<String, TxAnomaly> mappedValues = anomaliesStream.flatMapValues(TxCheckResult::getAnomalies);
+        mappedValues.to(invalidTopic, Produced.with(Serdes.String(), txAnomalySerde));
         KStream<String, Transaction> validTxStream = validTxCheckStream.mapValues(TxCheckResult::getTransaction);
         validTxStream.to(validTopic, Produced.with(Serdes.String(), txSerde));
 

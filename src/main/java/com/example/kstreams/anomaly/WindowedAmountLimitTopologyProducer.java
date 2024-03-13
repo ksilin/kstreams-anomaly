@@ -27,7 +27,6 @@ public class WindowedAmountLimitTopologyProducer {
     String validTopic;
     String invalidTopic;
 
-
     @Inject
     public WindowedAmountLimitTopologyProducer(@ConfigProperty(name = "sourceTopic") String sourceTopic, @ConfigProperty(name = "validTopic") String validTopic, @ConfigProperty(name = "invalidTopic") String invalidTopic) {
         this.sourceTopic = sourceTopic;
