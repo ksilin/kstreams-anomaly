@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tx-anomaly-app
+  namespace: confluent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tx-anomaly-app
+  template:
+    metadata:
+      labels:
+        app: tx-anomaly-app
+    spec:
+      containers:
+        - name: tx-anomaly-app
+          image: kostja/anomaly-jvm:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              # or just kafka-0:9071
+              value: "kafka.confluent.svc.cluster.local:9071"
+            - name: SR_URL
+              value: "http://schemaregistry.confluent.svc.cluster.local:8081"

@@ -18,7 +18,7 @@ public class WindowedAmountAnomalyCheck {
         boolean isOverLimit = previousSum + transaction.getTransactionAmount() > config.thresholdAmount;
         if (isOverLimit) {
             String msg = String.format("Anomaly in transaction %s for account %s: aggregated amount %d over the last %d seconds is over limit of %d", transaction.getTransactionId(), transaction.getAccountName(), previousSum + transaction.getTransactionAmount(), Math.round(config.periodMs / 1000f), config.thresholdAmount);
-            var anomaly = new TxAnomaly(transaction.getAccountName(), WINDOWED_AGGREGATED_TX_AMOUNT_LIMIT_ANOMALY, SingleAmountAnomalyCheck.class.getSimpleName(), msg, transaction, currentTimeMS);
+            var anomaly = new TxAnomaly(transaction.getAccountName(), WINDOWED_AGGREGATED_TX_AMOUNT_LIMIT_ANOMALY, WindowedAmountAnomalyCheck.class.getSimpleName(), msg, transaction, currentTimeMS);
             return Validation.invalid(anomaly);
         } else {
             return Validation.valid(transaction);
