@@ -1,0 +1,133 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: KRaftController
+metadata:
+  name: kraftcontroller
+  namespace: confluent
+spec:
+  dataVolumeCapacity: 10G
+  image:
+    application: docker.io/confluentinc/cp-server:7.6.0
+    init: confluentinc/confluent-init-container:2.8.0
+  replicas: 1
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: Kafka
+metadata:
+  name: kafka
+  namespace: confluent
+spec:
+  configOverrides:
+    server:
+      - confluent.license.topic.replication.factor=1
+      - default.replication.factor=1
+      - transaction.state.log.replication.factor=1
+      - offsets.topic.replication.factor=1
+      - confluent.monitoring.interceptor.topic.replication=1
+      - confluent.metrics.topic.replication=1
+      - confluent.tier.metadata.replication.factor=1
+      - confluent.cluster.link.metadata.topic.replication.factor=1
+      - confluent.balancer.topic.replication.factor=1
+      - confluent.security.event.logger.exporter.kafka.topic.replicas=1
+      - confluent.reporters.telemetry.auto.enable=false
+  replicas: 1
+  image:
+    application: confluentinc/cp-server:7.6.0
+    init: confluentinc/confluent-init-container:2.8.0
+  dataVolumeCapacity: 100Gi
+  dependencies:
+    kRaftController:
+      clusterRef:
+        name: kraftcontroller
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: ControlCenter
+
+metadata:
+  name: controlcenter
+  namespace: confluent
+spec:
+  configOverrides:
+    server:
+      - confluent.controlcenter.internal.topics.replication=1
+      - confluent.controlcenter.command.topic.replication=1
+      - confluent.monitoring.interceptor.topic.replication=1
+      - confluent.metrics.topic.replication=1
+  replicas: 1
+  image:
+    application: confluentinc/cp-enterprise-control-center:7.6.0
+    init: confluentinc/confluent-init-container:2.8.0
+  dataVolumeCapacity: 10Gi
+  dependencies:
+    schemaRegistry:
+      url: http://schemaregistry.confluent.svc.cluster.local:8081
+    ksqldb:
+      - name: ksqldb
+        url: http://ksqldb.confluent.svc.cluster.local:8088
+    connect:
+      - name: connect
+        url: http://connect.confluent.svc.cluster.local:8083
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: SchemaRegistry
+metadata:
+  name: schemaregistry
+  namespace: confluent
+spec:
+  replicas: 1
+  image:
+    application: confluentinc/cp-schema-registry:7.6.0
+    init: confluentinc/confluent-init-container:2.8.0
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: KafkaTopic
+metadata:
+  name: tx-in
+  namespace: confluent
+spec:
+  name: txIn
+  replicas: 1
+  partitionCount: 1
+  configs:
+    cleanup.policy: "delete"
+  kafkaClusterRef:
+    name: kafka
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: KafkaTopic
+metadata:
+  name: valid-tx
+  namespace: confluent
+spec:
+  name: validTx
+  replicas: 1
+  partitionCount: 1
+  configs:
+    cleanup.policy: "delete"
+  kafkaClusterRef:
+    name: kafka
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: KafkaTopic
+metadata:
+  name: anomalies
+  namespace: confluent
+spec:
+  replicas: 1
+  partitionCount: 1
+  configs:
+    cleanup.policy: "delete"
+  kafkaClusterRef:
+    name: kafka
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: KafkaTopic
+metadata:
+  name: anomaly-dlq
+  namespace: confluent
+spec:
+  replicas: 1
+  partitionCount: 1
+  configs:
+    cleanup.policy: "delete"
+  kafkaClusterRef:
+    name: kafka
