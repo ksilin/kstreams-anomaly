@@ -69,7 +69,7 @@ public class AnomalyDetectionTopologyTest {
         WindowedAmountAnomalyConfig windowedAmountAnomalyConfig = new WindowedAmountAnomalyConfig(200, 1000);
         ProcessorSupplier<String, Transaction, String, TxCheckResult> txCheckResultProcessorSupplier = () -> new TransactionAggregateProcessor(storeRetentionMs, singleAmountAnomalyConfig, windowedAmountAnomalyConfig);
 
-        var topo = AnomalyDetectionTopologyProducer.createTopology(sourceTopic, validTxTopic, anomalyTopic, mockSR, txCheckResultProcessorSupplier);
+        var topo = AnomalyDetectionTopologyProducer.createTopology(sourceTopic, validTxTopic, anomalyTopic, mockSR, "", txCheckResultProcessorSupplier);
 
         TestInputTopic<String, Transaction> inputTopic;
         TestOutputTopic<String, TxAnomaly> anomalyOutputTopic;
