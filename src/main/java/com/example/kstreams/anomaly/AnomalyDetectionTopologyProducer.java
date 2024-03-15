@@ -33,20 +33,28 @@ public class AnomalyDetectionTopologyProducer {
     String validTopic;
     String invalidTopic;
     String srUrl;
+    String basicAuthUserInfo;
 
     static final Serde<Transaction> txSerde = new SpecificAvroSerde<>();
     static final Serde<TxAnomaly> txAnomalySerde = new SpecificAvroSerde<>();
     static final Serde<TxCheckResult> txCheckResultSerde = new SpecificAvroSerde<>();
 
+    static final String checkResultsSplit = "checkResultsSplit-";
+    static final String validBranch = "validBranch";
+    static final String anomaliesBranch = "anomaliesBranch";
+
     @Inject
     public AnomalyDetectionTopologyProducer(@ConfigProperty(name = "anomaly.sourceTopic") String sourceTopic,
                                             @ConfigProperty(name = "anomaly.validTopic") String validTopic,
                                             @ConfigProperty(name = "anomaly.invalidTopic") String invalidTopic,
-                                            @ConfigProperty(name = "schema.registry.url") String srUrl) {
+                                            @ConfigProperty(name = "schema.registry.url") String srUrl,
+                                            @ConfigProperty(name = "basic.auth.user.info", defaultValue = "") String basicAuthUserInfo
+    ) {
         this.sourceTopic = sourceTopic;
         this.validTopic = validTopic;
         this.invalidTopic = invalidTopic;
         this.srUrl = srUrl;
+        this.basicAuthUserInfo = basicAuthUserInfo;
 
     }
 
@@ -56,30 +64,24 @@ public class AnomalyDetectionTopologyProducer {
         SingleAmountAnomalyConfig singleAmountAnomalyConfig = new SingleAmountAnomalyConfig(100);
         WindowedAmountAnomalyConfig windowedAmountAnomalyConfig = new WindowedAmountAnomalyConfig(300, 10000);
         ProcessorSupplier<String, Transaction, String, TxCheckResult> txCheckResultProcessorSupplier = () -> new TransactionAggregateProcessor(storeRetentionMs, singleAmountAnomalyConfig, windowedAmountAnomalyConfig);
-        return createTopology(this.sourceTopic, this.validTopic, this.invalidTopic,  this.srUrl, txCheckResultProcessorSupplier);
+        return createTopology(this.sourceTopic, this.validTopic, this.invalidTopic,  this.srUrl, this.basicAuthUserInfo, txCheckResultProcessorSupplier);
     }
 
 
-    public static Topology createTopology(String sourceTopic, String validTopic, String invalidTopic, String srUrl, ProcessorSupplier<String, Transaction, String, TxCheckResult> txCheckResultProcessorSupplier) {
+    public static Topology createTopology(String sourceTopic, String validTopic, String invalidTopic, String srUrl, String basicAuthUserInfo, ProcessorSupplier<String, Transaction, String, TxCheckResult> txCheckResultProcessorSupplier) {
 
-        configureSerdes(srUrl);
+        configureSerdes(srUrl, basicAuthUserInfo);
 
         var builder = new StreamsBuilder();
 
         Serdes.ListSerde<TxCheckResult> checkResultListSerde = new Serdes.ListSerde<>(ArrayList.class, txCheckResultSerde);
-        Serdes.ListSerde<TxAnomaly> anomalyListSerde = new Serdes.ListSerde<>(ArrayList.class, txAnomalySerde);
 
         var storeBuilder = Stores.keyValueStoreBuilder(Stores.persistentKeyValueStore(TransactionAggregateProcessor.TRANSACTION_AGGREGATE_STORE_NAME), Serdes.String(), checkResultListSerde);
         builder.addStateStore(storeBuilder);
 
         var stream = builder.stream(sourceTopic, Consumed.with(Serdes.String(), txSerde));
-        //stream.foreach((k, v) -> log.infof("k: %s, v: %s", k, v));
 
         KStream<String, TxCheckResult> checkResultsStream = stream.process(txCheckResultProcessorSupplier, TransactionAggregateProcessor.TRANSACTION_AGGREGATE_STORE_NAME);
-
-        String checkResultsSplit = "checkResultsSplit-";
-        String validBranch = "validBranch";
-        String anomaliesBranch = "anomaliesBranch";
 
         BranchedKStream<String, TxCheckResult> checkResultBranchedKStream = checkResultsStream.split(Named.as(checkResultsSplit));
         checkResultBranchedKStream.branch((k, v) -> !v.getAnomalies().isEmpty(), Branched.as(anomaliesBranch));
@@ -96,8 +98,10 @@ public class AnomalyDetectionTopologyProducer {
         return builder.build();
     }
 
-    private static void configureSerdes(String srUrl) {
+    private static void configureSerdes(String srUrl, String basicAuthUserInfo) {
         Map<String, String> serdeConfig = Map.of(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, srUrl,
+                                                 AbstractKafkaSchemaSerDeConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO",
+                                                 AbstractKafkaSchemaSerDeConfig.USER_INFO_CONFIG, basicAuthUserInfo,
                                                  AbstractKafkaSchemaSerDeConfig.NORMALIZE_SCHEMAS, "true"
         );
         txSerde.configure(serdeConfig, false);

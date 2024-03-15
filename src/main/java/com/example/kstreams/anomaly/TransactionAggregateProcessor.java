@@ -16,6 +16,9 @@ import java.util.List;
 
 public class TransactionAggregateProcessor implements Processor<String, Transaction, String, TxCheckResult> {
 
+    // TODO - distance between locations check
+    // TODO - add suspicious locations check
+    // TODO - add suspicious account names check
     private KeyValueStore<String, List<Transaction>> store;
     ProcessorContext<String, TxCheckResult> ctx;
 
@@ -33,10 +36,6 @@ public class TransactionAggregateProcessor implements Processor<String, Transact
 
     private final SingleAmountAnomalyConfig singleAmountAnomalyConfig;
     private WindowedAmountAnomalyConfig windowedAmountAnomalyConfig;
-
-    // TODO - distance between locations check
-    // TODO - add suspicious locations check
-    // TODO - add suspicious account names check
 
     @Override
     public void init(ProcessorContext<String, TxCheckResult> context) {
