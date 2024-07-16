@@ -2,6 +2,7 @@ plugins {
     java
     id("io.quarkus")
     id("io.freefair.lombok") version "8.3"
+    //id("com.google.protobuf") version "0.9.4"
 }
 
 repositories {
@@ -16,13 +17,15 @@ val quarkusPlatformGroupId: String by project
 val quarkusPlatformArtifactId: String by project
 val quarkusPlatformVersion: String by project
 
+//configurations.create("native-testCompileOnly")
+
 dependencies {
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
     implementation("io.quarkus:quarkus-confluent-registry-avro")
     // cflt SR libs use Jakarta REST client
     implementation("io.quarkus:quarkus-rest-client-reactive")
-    implementation("io.confluent:kafka-streams-avro-serde:7.5.1")
-    implementation("io.confluent:kafka-avro-serializer:7.5.1") {
+    implementation("io.confluent:kafka-streams-avro-serde:7.6.1")
+    implementation("io.confluent:kafka-schema-serializer:7.6.1") {
         exclude(group = "jakarta.ws.rs", module = "jakarta.ws.rs-api")
     }
     implementation("io.quarkus:quarkus-kafka-streams")
@@ -39,7 +42,6 @@ dependencies {
 
     annotationProcessor("io.soabase.record-builder:record-builder-processor:37")
     compileOnly("io.soabase.record-builder:record-builder-core:37")
-
 }
 
 group = "org.acme"

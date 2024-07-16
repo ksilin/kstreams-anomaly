@@ -5,6 +5,7 @@ import com.example.avro.TxAnomaly;
 import com.example.avro.TxCheckResult;
 import com.example.kstreams.anomaly.rules.SingleAmountAnomalyConfig;
 import com.example.kstreams.anomaly.rules.WindowedAmountAnomalyConfig;
+import com.example.kstreams.anomaly.util.SrConfig;
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import org.apache.kafka.common.serialization.Deserializer;
@@ -18,11 +19,12 @@ import org.jboss.logging.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import javax.swing.text.html.Option;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,7 +71,9 @@ public class AnomalyDetectionTopologyTest {
         WindowedAmountAnomalyConfig windowedAmountAnomalyConfig = new WindowedAmountAnomalyConfig(200, 1000);
         ProcessorSupplier<String, Transaction, String, TxCheckResult> txCheckResultProcessorSupplier = () -> new TransactionAggregateProcessor(storeRetentionMs, singleAmountAnomalyConfig, windowedAmountAnomalyConfig);
 
-        var topo = AnomalyDetectionTopologyProducer.createTopology(sourceTopic, validTxTopic, anomalyTopic, mockSR, "", txCheckResultProcessorSupplier);
+        SrConfig serdeConfig = new SrConfig(mockSR, Optional.empty());
+
+        var topo = AnomalyDetectionTopologyProducer.createTopology(sourceTopic, validTxTopic, anomalyTopic, serdeConfig, txCheckResultProcessorSupplier);
 
         TestInputTopic<String, Transaction> inputTopic;
         TestOutputTopic<String, TxAnomaly> anomalyOutputTopic;
